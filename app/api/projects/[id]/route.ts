@@ -56,8 +56,12 @@ export async function PATCH(
     return NextResponse.json({ project }, { status: 200 });
   } catch (error) {
     console.error("[PATCH /api/projects/:id] error:", error);
+    const message =
+      error && typeof error === "object" && "message" in error
+        ? String((error as { message?: string }).message)
+        : "Failed to update project";
     return NextResponse.json(
-      { error: "Failed to update project" },
+      { error: message || "Failed to update project" },
       { status: 500 }
     );
   }
@@ -83,8 +87,12 @@ export async function DELETE(
     return NextResponse.json({ deleted: true }, { status: 200 });
   } catch (error) {
     console.error("[DELETE /api/projects/:id] error:", error);
+    const message =
+      error && typeof error === "object" && "message" in error
+        ? String((error as { message?: string }).message)
+        : "Failed to delete project";
     return NextResponse.json(
-      { error: "Failed to delete project" },
+      { error: message || "Failed to delete project" },
       { status: 500 }
     );
   }

@@ -57,7 +57,7 @@ const ProjectSchema = new Schema<ProjectDocument>(
   }
 );
 
-ProjectSchema.pre("validate", function (next) {
+ProjectSchema.pre("validate", function () {
   if (!this.image && !this.video) {
     this.invalidate(
       "image",
@@ -68,7 +68,6 @@ ProjectSchema.pre("validate", function (next) {
       "At least one of image or video is required for a project."
     );
   }
-  next();
 });
 
 export const ProjectModel: Model<ProjectDocument> =

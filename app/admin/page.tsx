@@ -173,13 +173,40 @@ function ProjectAdminSection({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setFormError(null);
+    // Frontend validation of required fields
+    if (!form.name.trim()) {
+      const msg = "Name is required.";
+      setFormError(msg);
+      addToast(msg, "error");
+      return;
+    }
+    if (!form.description.trim()) {
+      const msg = "Description is required.";
+      setFormError(msg);
+      addToast(msg, "error");
+      return;
+    }
+    if (!form.source.trim()) {
+      const msg = "Source / repo is required.";
+      setFormError(msg);
+      addToast(msg, "error");
+      return;
+    }
+    if (!PROJECT_TYPES.includes(form.type)) {
+      const msg = "Type is invalid.";
+      setFormError(msg);
+      addToast(msg, "error");
+      return;
+    }
     if (!form.image.trim() && !form.video.trim()) {
       setFormError("At least one of image or video is required.");
+      addToast("At least one of image or video is required.", "error");
       return;
     }
     const priceNumber = Number(form.price);
     if (Number.isNaN(priceNumber) || priceNumber < 0) {
       setFormError("Price must be a non-negative number.");
+      addToast("Price must be a non-negative number.", "error");
       return;
     }
 
@@ -221,13 +248,14 @@ function ProjectAdminSection({
       setRefreshTrigger((t) => t + 1);
     } catch (err) {
       console.error(err);
-      setFormError(
-        err instanceof Error ? err.message : "Something went wrong."
-      );
-      addToast(
-        err instanceof Error ? err.message : "Request failed.",
-        "error"
-      );
+      const rawMessage =
+        err instanceof Error ? err.message : "Something went wrong.";
+      const friendlyMessage =
+        rawMessage === "Failed to create project"
+          ? "Server error while creating project. Make sure your MongoDB database (MONGODB_URI) is running and reachable."
+          : rawMessage;
+      setFormError(friendlyMessage);
+      addToast(friendlyMessage, "error");
     } finally {
       setSaving(false);
     }

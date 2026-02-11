@@ -73,8 +73,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ project }, { status: 201 });
   } catch (error) {
     console.error("[POST /api/projects] error:", error);
+    const message =
+      error && typeof error === "object" && "message" in error
+        ? String((error as { message?: string }).message)
+        : "Failed to create project";
     return NextResponse.json(
-      { error: "Failed to create project" },
+      { error: message || "Failed to create project" },
       { status: 500 }
     );
   }
