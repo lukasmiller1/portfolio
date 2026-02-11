@@ -35,3 +35,48 @@ export async function GET(request: Request) {
   }
 }
 
+export async function POST(request: Request) {
+  try {
+    const { connectToDatabase } = await import("@/lib/mongodb");
+    const { ProjectModel } = await import("@/models/Project");
+
+    await connectToDatabase();
+
+    const body = await request.json();
+
+    const { name, description, source, price, image, video, type } = body ?? {};
+
+    if (!name || !description || !source || typeof price !== "number" || !type) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!image && !video) {
+      return NextResponse.json(
+        { error: "At least one of image or video is required" },
+        { status: 400 }
+      );
+    }
+
+    const project = await ProjectModel.create({
+      name,
+      description,
+      source,
+      price,
+      image: image ?? null,
+      video: video ?? null,
+      type,
+    });
+
+    return NextResponse.json({ project }, { status: 201 });
+  } catch (error) {
+    console.error("[POST /api/projects] error:", error);
+    return NextResponse.json(
+      { error: "Failed to create project" },
+      { status: 500 }
+    );
+  }
+}
+
