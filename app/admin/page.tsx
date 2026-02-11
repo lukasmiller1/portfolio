@@ -14,7 +14,79 @@ const PROJECT_TYPES: ProjectType[] = [
   "other",
 ];
 
+type AdminTab = "project" | "user" | "team" | "contact" | "about";
+
+const TABS: { id: AdminTab; label: string }[] = [
+  { id: "project", label: "Project" },
+  { id: "user", label: "User" },
+  { id: "team", label: "Team" },
+  { id: "contact", label: "Contact" },
+  { id: "about", label: "About" },
+];
+
 export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState<AdminTab>("project");
+
+  return (
+    <PageContainer className="gap-8 pt-16">
+      <section className="space-y-3">
+        <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
+          Admin
+        </h1>
+        <p className="max-w-2xl text-sm leading-relaxed text-zinc-200">
+          Internal tools for managing projects, users, team information, contact
+          details, and about content for this site.
+        </p>
+      </section>
+
+      <nav
+        aria-label="Admin sections"
+        className="flex flex-wrap gap-2 text-xs font-medium text-zinc-300"
+      >
+        {TABS.map((tab) => {
+          const isActive = tab.id === activeTab;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`rounded-full border px-3 py-1.5 transition ${
+                isActive
+                  ? "border-sky-400 bg-sky-500/20 text-sky-100 shadow-[0_0_0_1px_rgba(56,189,248,0.4)]"
+                  : "border-white/10 bg-black/40 hover:border-sky-400/60 hover:text-sky-100"
+              }`}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </nav>
+
+      {activeTab === "project" && <ProjectAdminSection />}
+      {activeTab === "user" && <PlaceholderSection title="User" />}
+      {activeTab === "team" && <PlaceholderSection title="Team" />}
+      {activeTab === "contact" && <PlaceholderSection title="Contact" />}
+      {activeTab === "about" && <PlaceholderSection title="About" />}
+    </PageContainer>
+  );
+}
+
+function PlaceholderSection({ title }: { title: string }) {
+  return (
+    <Card className="space-y-2">
+      <h2 className="text-sm font-semibold text-zinc-50">
+        {title} management
+      </h2>
+      <p className="text-xs text-zinc-300">
+        This tab is reserved for future {title.toLowerCase()} management tools.
+        You can add forms and tables here when you are ready to manage this
+        data from the admin panel.
+      </p>
+    </Card>
+  );
+}
+
+function ProjectAdminSection() {
   const [search, setSearch] = useState("");
   const { projects, loading, error } = useProjects(search);
 
@@ -79,18 +151,7 @@ export default function AdminPage() {
   }
 
   return (
-    <PageContainer className="gap-10 pt-16">
-      <section className="space-y-4">
-        <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
-          Admin – manage projects
-        </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-zinc-200">
-          Use this page to search existing projects and create new ones in the
-          <span className="font-semibold"> Project</span> collection.
-        </p>
-      </section>
-
-      <section className="grid gap-6 md:grid-cols-[minmax(0,2.2fr)_minmax(0,2fr)]">
+    <section className="grid gap-6 md:grid-cols-[minmax(0,2.2fr)_minmax(0,2fr)]">
         <Card className="space-y-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
@@ -291,7 +352,6 @@ export default function AdminPage() {
           </form>
         </Card>
       </section>
-    </PageContainer>
   );
 }
 
