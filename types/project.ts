@@ -10,7 +10,3 @@ export interface Project {
   video?: string | null;
   type: ProjectType;
 }
-
-export interface ProjectsApiResponse {
-  projects: Project[];
-}
