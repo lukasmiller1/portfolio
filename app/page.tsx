@@ -119,67 +119,13 @@ export default function Home() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-6xl flex-col gap-16 px-6 pb-20 pt-8 text-zinc-50 md:px-10 lg:px-16">
-      <header className="sticky top-4 z-20 rounded-full border border-white/10 bg-black/60 px-6 py-3 shadow-lg shadow-black/40 backdrop-blur-md">
-        <div className="flex flex-col items-center gap-4 md:flex-row md:justify-between">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.8)]" />
-            <span className="text-sm font-semibold tracking-[0.25em] uppercase text-amber-200">
-              My Project Store
-            </span>
-          </div>
-
-          <nav className="flex flex-1 items-center justify-between gap-4 md:ml-8">
-            <div className="flex items-center gap-4 text-sm font-medium text-zinc-200">
-              <a href="#home" className="hover:text-amber-300">
-                Home
-              </a>
-              <a href="#about" className="hover:text-amber-300">
-                About
-              </a>
-              <a href="#contact" className="hover:text-amber-300">
-                Contact
-              </a>
-            </div>
-
-            <a
-              href="/app"
-              className="inline-flex items-center justify-center rounded-full bg-amber-400 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-black shadow-md shadow-amber-500/40 transition hover:bg-amber-300"
-            >
-              Go to app
-            </a>
-          </nav>
-        </div>
-
-        <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center">
-          <label className="flex-1 text-xs font-medium uppercase tracking-wide text-zinc-400">
-            Search projects
-            <div className="mt-1 flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-1.5 text-xs text-zinc-200">
-              <span className="text-zinc-500">🔍</span>
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search by project name or description..."
-                className="w-full bg-transparent text-xs outline-none placeholder:text-zinc-500"
-              />
-            </div>
-          </label>
-          <p className="text-[11px] text-zinc-400 md:text-right">
-            <span className="font-semibold text-amber-200">
-              Get one project with Pro.
-            </span>{" "}
-            Upgrade once and unlock a project of your choice.
-          </p>
-        </div>
-      </header>
-
       <section
         id="home"
         className="mt-8 grid gap-12 md:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]"
       >
         <div className="space-y-6">
-          <p className="inline-flex items-center rounded-full bg-amber-400/10 px-3 py-1 text-xs font-medium text-amber-100 ring-1 ring-amber-400/30">
-            <span className="mr-2 h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.9)]" />
+          <p className="inline-flex items-center rounded-full bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-100 ring-1 ring-sky-500/40">
+            <span className="mr-2 h-1.5 w-1.5 rounded-full bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.9)]" />
             Hand-crafted games, scripts, bots, and websites.
           </p>
 
@@ -196,23 +142,45 @@ export default function Home() {
             </p>
           </div>
 
+          <div className="space-y-3">
+            <label className="flex-1 text-xs font-medium uppercase tracking-wide text-zinc-400">
+              Search projects
+              <div className="mt-1 flex items-center gap-2 rounded-full border border-white/10 bg-black/60 px-3 py-1.5 text-xs text-zinc-200">
+                <span className="text-zinc-500">🔍</span>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search by project name or description..."
+                  className="w-full bg-transparent text-xs outline-none placeholder:text-zinc-500"
+                />
+              </div>
+            </label>
+            <p className="text-[11px] text-zinc-400">
+              <span className="font-semibold text-sky-200">
+                Get one project with Pro.
+              </span>{" "}
+              Upgrade once and unlock a project of your choice.
+            </p>
+          </div>
+
           <div className="grid gap-3 text-xs text-zinc-300 md:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-black/50 p-3">
-              <p className="font-semibold text-amber-200">Games</p>
+              <p className="font-semibold text-sky-200">Games</p>
               <p className="mt-1 text-[11px] text-zinc-300">
                 Ready-to-play titles with clean source code for learning or
                 customization.
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/50 p-3">
-              <p className="font-semibold text-amber-200">Scripts &amp; Bots</p>
+              <p className="font-semibold text-sky-200">Scripts &amp; Bots</p>
               <p className="mt-1 text-[11px] text-zinc-300">
                 Automate tasks, manage communities, and integrate services with
                 production bots.
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-black/50 p-3">
-              <p className="font-semibold text-amber-200">Websites</p>
+              <p className="font-semibold text-sky-200">Websites</p>
               <p className="mt-1 text-[11px] text-zinc-300">
                 Fast, responsive sites and components ready to plug into your
                 stack.
@@ -234,7 +202,7 @@ export default function Home() {
               <dt className="text-[11px] uppercase tracking-wide text-zinc-500">
                 Included with Pro
               </dt>
-              <dd className="mt-1 font-semibold text-amber-200">
+              <dd className="mt-1 font-semibold text-sky-200">
                 1 project of choice
               </dd>
             </div>
@@ -276,7 +244,7 @@ export default function Home() {
           ) : (
             <p className="text-xs text-zinc-400">
               Showing{" "}
-              <span className="font-semibold text-amber-200">
+              <span className="font-semibold text-sky-200">
                 {projects.length}
               </span>{" "}
               project{projects.length === 1 ? "" : "s"}.
@@ -285,7 +253,7 @@ export default function Home() {
         </header>
 
         {error && (
-          <p className="rounded-2xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-xs text-amber-100">
+          <p className="rounded-2xl border border-sky-500/40 bg-sky-500/10 px-4 py-3 text-xs text-sky-100">
             {error}
           </p>
         )}
@@ -317,14 +285,14 @@ export default function Home() {
                   {items.map((project) => (
                     <article
                       key={project._id}
-                      className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-black/60 p-4 shadow-md shadow-black/60 transition hover:border-amber-400/60 hover:shadow-amber-500/30"
+                      className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-black/60 p-4 shadow-md shadow-black/60 transition hover:border-sky-400/60 hover:shadow-sky-500/30"
                     >
                       <div className="space-y-3">
                         <div className="flex items-start justify-between gap-2">
                           <h4 className="text-sm font-semibold text-zinc-50">
                             {project.name}
                           </h4>
-                          <span className="rounded-full bg-amber-400/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-200">
+                          <span className="rounded-full bg-sky-500/15 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-sky-200">
                             ${project.price}
                           </span>
                         </div>
@@ -343,7 +311,7 @@ export default function Home() {
                             ? "Includes image preview."
                             : "No media attached (update in dashboard)."}
                         </p>
-                        <button className="rounded-full bg-amber-400/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-black transition group-hover:bg-amber-300">
+                        <button className="rounded-full bg-sky-500/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-black transition group-hover:bg-sky-400">
                           View details
                         </button>
                       </div>
@@ -353,81 +321,6 @@ export default function Home() {
               </section>
             );
           })}
-        </div>
-      </section>
-
-      <section id="about" className="space-y-4">
-        <h2 className="text-lg font-semibold text-zinc-50">About</h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          <p className="text-sm leading-relaxed text-zinc-200">
-            This marketplace is focused on practical, ready-to-use digital
-            products. Every project is built from real-world experience and is
-            designed to solve a specific problem: engaging players, automating
-            workflows, powering communities, or launching polished websites.
-          </p>
-          <p className="text-sm leading-relaxed text-zinc-200">
-            <span className="font-semibold text-amber-200">Games</span> are
-            created with performance and replayability in mind.{" "}
-            <span className="font-semibold text-amber-200">Scripts</span> help
-            you automate repetitive tasks and speed up your development
-            process. <span className="font-semibold text-amber-200">Bots</span>{" "}
-            bring intelligence and automation to platforms like Discord or
-            Telegram. <span className="font-semibold text-amber-200">
-              Websites
-            </span>{" "}
-            are designed with clean layouts, responsive design, and modern
-            tooling so you can launch quickly.
-          </p>
-        </div>
-      </section>
-
-      <section id="contact" className="space-y-4">
-        <h2 className="text-lg font-semibold text-zinc-50">Contact</h2>
-        <div className="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-          <div className="space-y-3 rounded-2xl border border-white/10 bg-black/60 p-4">
-            <p className="text-sm text-zinc-200">
-              If you are interested in a custom project, want adjustments to an
-              existing product, or have pre-sale questions, feel free to reach
-              out directly.
-            </p>
-            <dl className="space-y-2 text-sm text-zinc-200">
-              <div>
-                <dt className="text-[11px] uppercase tracking-wide text-zinc-500">
-                  Email
-                </dt>
-                <dd className="font-medium">
-                  your-email@example.com
-                  <span className="ml-1 text-[11px] text-zinc-500">
-                    (replace with your real address)
-                  </span>
-                </dd>
-              </div>
-              <div>
-                <dt className="text-[11px] uppercase tracking-wide text-zinc-500">
-                  Discord / Telegram
-                </dt>
-                <dd className="font-medium">
-                  @your-handle
-                  <span className="ml-1 text-[11px] text-zinc-500">
-                    (update with your handle)
-                  </span>
-                </dd>
-              </div>
-            </dl>
-          </div>
-          <div className="space-y-3 rounded-2xl border border-white/10 bg-black/60 p-4">
-            <p className="text-sm text-zinc-200">
-              Add a short introduction about yourself here: your background,
-              tech stack, and what kind of projects you enjoy building. This
-              helps buyers understand who they are buying from and what to
-              expect in terms of code quality and support.
-            </p>
-            <p className="text-sm text-zinc-200">
-              You can also describe how updates are delivered, whether buyers
-              get future improvements, and how to contact you for bug reports
-              or feature requests.
-            </p>
-          </div>
         </div>
       </section>
     </main>
