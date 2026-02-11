@@ -16,27 +16,22 @@ if (!cached) {
 }
 
 export async function connectToDatabase(): Promise<typeof mongoose> {
-  if (!cached) {
-    cached = { conn: null, promise: null };
-    (global as typeof globalThis & { mongoose?: typeof cached }).mongoose = cached;
-  }
-  const c = cached;
-  if (c.conn) {
-    return c.conn;
+  if (cached.conn) {
+    return cached.conn;
   }
 
-  if (!c.promise) {
-    c.promise = mongoose.connect(MONGODB_URI).catch((err) => {
-      c.promise = null;
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGODB_URI).catch((err) => {
+      cached.promise = null;
       throw err;
     });
   }
 
   try {
-    c.conn = await c.promise;
-    return c.conn;
+    cached.conn = await cached.promise;
+    return cached.conn;
   } catch (err) {
-    c.promise = null;
+    cached.promise = null;
     throw err;
   }
 }

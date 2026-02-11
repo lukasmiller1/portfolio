@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useAppKit } from "@reown/appkit/react";
 import { Baton } from "@/components/ui/Baton";
 
 const NAV_LINKS = [
@@ -13,35 +12,7 @@ const NAV_LINKS = [
 ] as const;
 
 export function Header() {
-  const router = useRouter();
-  const [ready, setReady] = useState(false);
-  const [connecting, setConnecting] = useState(false);
-
-  useEffect(() => {
-    // Pre-initialize the connector so the first click is faster.
-    import("@/lib/walletConnect")
-      .then(({ getUniversalConnector }) => getUniversalConnector())
-      .then(() => setReady(true))
-      .catch((err: unknown) => {
-        console.error("Failed to initialize WalletConnect", err);
-        setReady(false);
-      });
-  }, []);
-
-  async function handleGoToApp() {
-    try {
-      setConnecting(true);
-      const { getUniversalConnector } = await import("@/lib/walletConnect");
-      const universalConnector = await getUniversalConnector();
-      await universalConnector.connect();
-      await router.push("/app");
-    } catch (err) {
-      console.error("Wallet connect failed", err);
-      // You could surface a toast here if desired.
-    } finally {
-      setConnecting(false);
-    }
-  }
+  const { open } = useAppKit();
 
   return (
     <header className="sticky top-0 z-20 mx-auto max-w-6xl bg-black/60 px-6 pt-4 backdrop-blur-md md:px-10 lg:px-16">
@@ -61,8 +32,8 @@ export function Header() {
               </Link>
             ))}
           </div>
-          <Baton onClick={handleGoToApp} disabled={!ready || connecting}>
-            {connecting ? "Connecting..." : "Go to app"}
+          <Baton onClick={() => open()}>
+            Go to app
           </Baton>
         </nav>
       </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
+import { AppKitProvider } from "@/context/appkit";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,8 +36,10 @@ export default function RootLayout({
             aria-hidden
           />
           <div className="relative z-10 backdrop-blur-[2px]">
-            <Header />
-            {children}
+            <AppKitProvider>
+              <Header />
+              {children}
+            </AppKitProvider>
           </div>
         </div>
       </body>

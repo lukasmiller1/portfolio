@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev --webpack",
-    "build": "next build --webpack",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint"
   },
   "dependencies": {
     "@reown/appkit": "^1.8.18",
+    "@reown/appkit-adapter-ethers": "^1.8.18",
     "@reown/appkit-common": "^1.8.18",
     "@reown/appkit-universal-connector": "^1.8.18",
     "ethers": "^6.16.0",

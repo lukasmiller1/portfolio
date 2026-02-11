@@ -25,14 +25,22 @@ export function useProjects(searchQuery: string, refreshTrigger?: number) {
         const res = await fetch(`${API_PROJECTS}?${params.toString()}`, {
           cache: "no-store",
         });
-        if (!res.ok) throw new Error("Failed to load projects");
+        if (!res.ok) {
+          const body = (await res.json().catch(() => ({}))) as { error?: string };
+          if (!cancelled) {
+            setError(
+              body.error || "Unable to load projects right now. You can still browse the demo list below."
+            );
+            setProjects(DEMO_PROJECTS);
+          }
+          return;
+        }
         const data = (await res.json()) as { projects: Project[] };
         if (!cancelled) {
-          setProjects(data.projects);
+          setProjects(data.projects ?? []);
         }
       } catch (err) {
         if (!cancelled) {
-          console.error(err);
           setError(
             "Unable to load projects right now. You can still browse the demo list below."
           );
