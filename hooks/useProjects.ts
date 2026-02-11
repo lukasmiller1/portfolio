@@ -6,7 +6,7 @@ import { DEMO_PROJECTS } from "@/constants/projects";
 
 const API_PROJECTS = "/api/projects";
 
-export function useProjects(searchQuery: string) {
+export function useProjects(searchQuery: string, refreshTrigger?: number) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +47,7 @@ export function useProjects(searchQuery: string) {
     return () => {
       cancelled = true;
     };
-  }, [searchQuery]);
+  }, [searchQuery, refreshTrigger]);
 
   const groupedByType = useMemo(() => {
     const groups: Record<ProjectType, Project[]> = {

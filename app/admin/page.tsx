@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { Card } from "@/components/ui/Card";
+import { ToastContainer, type ToastItem } from "@/components/admin/ToastContainer";
 import { useProjects } from "@/hooks/useProjects";
-import type { ProjectType } from "@/types/project";
+import type { Project, ProjectType } from "@/types/project";
 
 const PROJECT_TYPES: ProjectType[] = [
   "game",
@@ -24,11 +25,28 @@ const TABS: { id: AdminTab; label: string }[] = [
   { id: "about", label: "About" },
 ];
 
+const TOAST_DURATION_MS = 4000;
+
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("project");
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  const addToast = useCallback((message: string, type: "success" | "error") => {
+    const id = Date.now();
+    setToasts((t) => [...t, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((t) => t.filter((x) => x.id !== id));
+    }, TOAST_DURATION_MS);
+  }, []);
+
+  const dismissToast = useCallback((id: number) => {
+    setToasts((t) => t.filter((x) => x.id !== id));
+  }, []);
 
   return (
     <PageContainer className="gap-8 pt-16">
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+
       <section className="space-y-3">
         <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
           Admin
@@ -62,7 +80,7 @@ export default function AdminPage() {
         })}
       </nav>
 
-      {activeTab === "project" && <ProjectAdminSection />}
+      {activeTab === "project" && <ProjectAdminSection addToast={addToast} />}
       {activeTab === "user" && <PlaceholderSection title="User" />}
       {activeTab === "team" && <PlaceholderSection title="Team" />}
       {activeTab === "contact" && <PlaceholderSection title="Contact" />}
@@ -86,272 +104,463 @@ function PlaceholderSection({ title }: { title: string }) {
   );
 }
 
-function ProjectAdminSection() {
+const emptyForm = {
+  name: "",
+  description: "",
+  source: "",
+  price: "",
+  image: "",
+  video: "",
+  type: "game" as ProjectType,
+};
+
+function projectToForm(p: Project) {
+  return {
+    name: p.name,
+    description: p.description,
+    source: p.source,
+    price: String(p.price),
+    image: p.image ?? "",
+    video: p.video ?? "",
+    type: p.type,
+  };
+}
+
+function ProjectAdminSection({
+  addToast,
+}: {
+  addToast: (message: string, type: "success" | "error") => void;
+}) {
   const [search, setSearch] = useState("");
-  const { projects, loading, error } = useProjects(search);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const { projects, loading, error } = useProjects(search, refreshTrigger);
 
-  const [form, setForm] = useState({
-    name: "",
-    description: "",
-    source: "",
-    price: "",
-    image: "",
-    video: "",
-    type: "game" as ProjectType,
-  });
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  async function handleCreate(e: React.FormEvent) {
+  function getMediaSummary(project: Project): string {
+    if (project.image && project.video) return "Image + Video";
+    if (project.video) return "Video";
+    if (project.image) return "Image";
+    return "None";
+  }
+
+  function openCreate() {
+    setFormError(null);
+    setForm(emptyForm);
+    setModalMode("create");
+    setEditingId(null);
+    setModalOpen(true);
+  }
+
+  function openEdit(project: Project) {
+    setFormError(null);
+    setForm(projectToForm(project));
+    setModalMode("edit");
+    setEditingId(project._id);
+    setModalOpen(true);
+  }
+
+  function closeModal() {
+    setModalOpen(false);
+    setFormError(null);
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSaving(true);
-    setSaveError(null);
-
+    setFormError(null);
+    if (!form.image.trim() && !form.video.trim()) {
+      setFormError("At least one of image or video is required.");
+      return;
+    }
     const priceNumber = Number(form.price);
+    if (Number.isNaN(priceNumber) || priceNumber < 0) {
+      setFormError("Price must be a non-negative number.");
+      return;
+    }
 
+    setSaving(true);
     try {
-      const res = await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name.trim(),
-          description: form.description.trim(),
-          source: form.source.trim(),
-          price: priceNumber,
-          image: form.image.trim() || null,
-          video: form.video.trim() || null,
-          type: form.type,
-        }),
-      });
+      const payload = {
+        name: form.name.trim(),
+        description: form.description.trim(),
+        source: form.source.trim(),
+        price: priceNumber,
+        image: form.image.trim() || null,
+        video: form.video.trim() || null,
+        type: form.type,
+      };
 
-      if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as {
-          error?: string;
-        };
-        throw new Error(data.error || "Failed to create project");
+      if (modalMode === "create") {
+        const res = await fetch("/api/projects", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        if (!res.ok) throw new Error(data.error || "Failed to create project");
+        addToast("Project created successfully.", "success");
+      } else {
+        if (!editingId) return;
+        const res = await fetch(`/api/projects/${editingId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        if (!res.ok) throw new Error(data.error || "Failed to update project");
+        addToast("Project updated successfully.", "success");
       }
 
-      setForm({
-        name: "",
-        description: "",
-        source: "",
-        price: "",
-        image: "",
-        video: "",
-        type: "game",
-      });
+      closeModal();
+      setForm(emptyForm);
+      setRefreshTrigger((t) => t + 1);
     } catch (err) {
       console.error(err);
-      setSaveError(
-        err instanceof Error ? err.message : "Failed to create project"
+      setFormError(
+        err instanceof Error ? err.message : "Something went wrong."
+      );
+      addToast(
+        err instanceof Error ? err.message : "Request failed.",
+        "error"
       );
     } finally {
       setSaving(false);
     }
   }
 
+  async function handleDelete(project: Project) {
+    if (!confirm(`Delete "${project.name}"? This cannot be undone.`)) return;
+    try {
+      const res = await fetch(`/api/projects/${project._id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error || "Failed to delete project");
+      }
+      addToast("Project deleted.", "success");
+      setRefreshTrigger((t) => t + 1);
+    } catch (err) {
+      console.error(err);
+      addToast(
+        err instanceof Error ? err.message : "Failed to delete project",
+        "error"
+      );
+    }
+  }
+
   return (
-    <section className="grid gap-6 md:grid-cols-[minmax(0,2.2fr)_minmax(0,2fr)]">
-        <Card className="space-y-4">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h2 className="text-sm font-semibold text-zinc-50">
-                Existing projects
-              </h2>
-              <p className="text-xs text-zinc-400">
-                Filter by name or description.
-              </p>
-            </div>
-            <input
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search projects..."
-              className="w-full rounded-full border border-white/10 bg-black/60 px-3 py-1.5 text-xs text-zinc-200 outline-none placeholder:text-zinc-500 md:w-64"
-            />
-          </div>
+    <section className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <nav className="text-xs text-zinc-400" aria-label="Breadcrumb">
+          <span>Admin</span>
+          <span className="mx-2">/</span>
+          <span className="text-zinc-200">Project</span>
+        </nav>
+        <button
+          type="button"
+          onClick={openCreate}
+          className="inline-flex shrink-0 items-center justify-center rounded-full bg-sky-500 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-black shadow-md shadow-sky-500/40 transition hover:bg-sky-400"
+        >
+          Add project
+        </button>
+      </div>
 
-          {loading && (
-            <p className="text-xs text-zinc-400">Loading projects…</p>
-          )}
-          {error && (
-            <p className="text-xs text-red-300">
-              {error} (showing demo data if available)
+      <Card className="space-y-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-zinc-50">Projects</h2>
+            <p className="text-xs text-zinc-400">
+              Filter by name or description.
             </p>
-          )}
-
-          <div className="mt-2 max-h-72 space-y-2 overflow-y-auto pr-1 text-xs">
-            {projects.map((project) => (
-              <div
-                key={project._id}
-                className="flex items-start justify-between gap-3 rounded-xl border border-white/10 bg-black/40 px-3 py-2"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] uppercase tracking-wide text-zinc-500">
-                      {project.type}
-                    </span>
-                    <span className="font-semibold text-zinc-50">
-                      {project.name}
-                    </span>
-                  </div>
-                  <p className="line-clamp-2 text-[11px] text-zinc-300">
-                    {project.description}
-                  </p>
-                </div>
-                <span className="whitespace-nowrap text-[11px] font-semibold text-sky-200">
-                  ${project.price}
-                </span>
-              </div>
-            ))}
-            {!loading && !projects.length && (
-              <p className="text-xs text-zinc-500">
-                No projects found. Create your first project using the form on
-                the right.
-              </p>
-            )}
           </div>
-        </Card>
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search projects..."
+            className="w-full rounded-full border border-white/10 bg-black/60 px-3 py-1.5 text-xs text-zinc-200 outline-none placeholder:text-zinc-500 md:w-64"
+          />
+        </div>
 
-        <Card className="space-y-4">
-          <h2 className="text-sm font-semibold text-zinc-50">
-            Create new project
-          </h2>
-          <form className="space-y-3 text-xs" onSubmit={handleCreate}>
-            <div className="grid gap-3 md:grid-cols-2">
-              <label className="space-y-1">
-                <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                  Name
-                </span>
-                <input
-                  required
-                  value={form.name}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-xs text-zinc-100 outline-none placeholder:text-zinc-500"
-                  placeholder="Project name"
-                />
-              </label>
-              <label className="space-y-1">
-                <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                  Type
-                </span>
-                <select
-                  value={form.type}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      type: e.target.value as ProjectType,
-                    }))
-                  }
-                  className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-xs text-zinc-100 outline-none"
+        {loading && (
+          <p className="text-xs text-zinc-400">Loading projects…</p>
+        )}
+        {error && (
+          <p className="text-xs text-red-300">
+            {error} (showing demo data if available)
+          </p>
+        )}
+
+        <div className="max-h-96 overflow-y-auto rounded-xl border border-white/10 bg-black/40 text-xs">
+          <table className="min-w-full border-collapse">
+            <thead className="sticky top-0 z-10 bg-black/80 text-[11px] uppercase tracking-wide text-zinc-400">
+              <tr>
+                <th className="px-3 py-2 text-left">Name</th>
+                <th className="px-3 py-2 text-left">Type</th>
+                <th className="px-3 py-2 text-left">Price</th>
+                <th className="px-3 py-2 text-left">Media</th>
+                <th className="px-3 py-2 text-left">Source</th>
+                <th className="px-3 py-2 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {projects.map((project) => (
+                <tr
+                  key={project._id}
+                  className="border-t border-white/5 hover:bg-white/5"
                 >
-                  {PROJECT_TYPES.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
+                  <td className="px-3 py-2 align-top font-semibold text-zinc-50">
+                    {project.name}
+                  </td>
+                  <td className="px-3 py-2 align-top text-[11px] uppercase tracking-wide text-zinc-500">
+                    {project.type}
+                  </td>
+                  <td className="px-3 py-2 align-top whitespace-nowrap font-semibold text-sky-200">
+                    ${project.price}
+                  </td>
+                  <td className="px-3 py-2 align-top text-zinc-300">
+                    {getMediaSummary(project)}
+                  </td>
+                  <td className="max-w-xs truncate px-3 py-2 align-top text-zinc-300">
+                    {project.source}
+                  </td>
+                  <td className="px-3 py-2 align-top text-right">
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => openEdit(project)}
+                        className="rounded border border-white/20 px-2 py-1 text-[11px] font-medium text-zinc-200 transition hover:bg-white/10"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(project)}
+                        className="rounded border border-red-500/40 px-2 py-1 text-[11px] font-medium text-red-200 transition hover:bg-red-500/20"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {!loading && !projects.length && (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="px-3 py-6 text-center text-xs text-zinc-500"
+                  >
+                    No projects found. Click “Add project” to create one.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
 
-            <label className="space-y-1 block">
-              <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                Description
-              </span>
-              <textarea
-                required
-                rows={3}
-                value={form.description}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, description: e.target.value }))
-                }
-                className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-xs text-zinc-100 outline-none placeholder:text-zinc-500"
-                placeholder="Short description of what this project does"
-              />
-            </label>
-
-            <label className="space-y-1 block">
-              <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                Source / repo
-              </span>
-              <input
-                required
-                value={form.source}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, source: e.target.value }))
-                }
-                className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-xs text-zinc-100 outline-none placeholder:text-zinc-500"
-                placeholder="e.g. private Git repo URL or note"
-              />
-            </label>
-
-            <div className="grid gap-3 md:grid-cols-3">
-              <label className="space-y-1">
-                <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                  Price (USD)
-                </span>
-                <input
-                  required
-                  type="number"
-                  min={0}
-                  step="0.01"
-                  value={form.price}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, price: e.target.value }))
-                  }
-                  className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-xs text-zinc-100 outline-none placeholder:text-zinc-500"
-                  placeholder="19"
-                />
-              </label>
-              <label className="space-y-1">
-                <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                  Image URL
-                </span>
-                <input
-                  value={form.image}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, image: e.target.value }))
-                  }
-                  className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-xs text-zinc-100 outline-none placeholder:text-zinc-500"
-                  placeholder="Optional"
-                />
-              </label>
-              <label className="space-y-1">
-                <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
-                  Video URL
-                </span>
-                <input
-                  value={form.video}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, video: e.target.value }))
-                  }
-                  className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-xs text-zinc-100 outline-none placeholder:text-zinc-500"
-                  placeholder="Optional"
-                />
-              </label>
-            </div>
-
-            <p className="text-[11px] text-zinc-400">
-              At least one of <span className="font-semibold">image</span> or{" "}
-              <span className="font-semibold">video</span> is required.
-            </p>
-
-            {saveError && (
-              <p className="text-[11px] text-red-300">{saveError}</p>
-            )}
-
-            <button
-              type="submit"
-              disabled={saving}
-              className="mt-1 inline-flex items-center justify-center rounded-full bg-sky-500 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-black shadow-md shadow-sky-500/40 transition hover:bg-sky-400 disabled:opacity-60"
-            >
-              {saving ? "Saving…" : "Create project"}
-            </button>
-          </form>
-        </Card>
-      </section>
+      {modalOpen && (
+        <ProjectModal
+          mode={modalMode}
+          form={form}
+          setForm={setForm}
+          formError={formError}
+          saving={saving}
+          onSubmit={handleSubmit}
+          onClose={closeModal}
+        />
+      )}
+    </section>
   );
 }
 
+function ProjectModal({
+  mode,
+  form,
+  setForm,
+  formError,
+  saving,
+  onSubmit,
+  onClose,
+}: {
+  mode: "create" | "edit";
+  form: typeof emptyForm;
+  setForm: React.Dispatch<React.SetStateAction<typeof emptyForm>>;
+  formError: string | null;
+  saving: boolean;
+  onSubmit: (e: React.FormEvent) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="project-modal-title"
+    >
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/10 bg-zinc-900 shadow-xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-zinc-900 px-4 py-3">
+          <h2 id="project-modal-title" className="text-sm font-semibold text-zinc-50">
+            {mode === "create" ? "Create new project" : "Edit project"}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded p-1 text-zinc-400 hover:bg-white/10 hover:text-zinc-50"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <form className="space-y-3 p-4 text-xs" onSubmit={onSubmit}>
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="space-y-1">
+              <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+                Name
+              </span>
+              <input
+                required
+                value={form.name}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, name: e.target.value }))
+                }
+                className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-zinc-100 outline-none placeholder:text-zinc-500"
+                placeholder="Project name"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+                Type
+              </span>
+              <select
+                value={form.type}
+                onChange={(e) =>
+                  setForm((prev) => ({
+                    ...prev,
+                    type: e.target.value as ProjectType,
+                  }))
+                }
+                className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-zinc-100 outline-none"
+              >
+                {PROJECT_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <label className="block space-y-1">
+            <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+              Description
+            </span>
+            <textarea
+              required
+              rows={3}
+              value={form.description}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, description: e.target.value }))
+              }
+              className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-zinc-100 outline-none placeholder:text-zinc-500"
+              placeholder="Short description of what this project does"
+            />
+          </label>
+
+          <label className="block space-y-1">
+            <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+              Source / repo
+            </span>
+            <input
+              required
+              value={form.source}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, source: e.target.value }))
+              }
+              className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-zinc-100 outline-none placeholder:text-zinc-500"
+              placeholder="e.g. private Git repo URL or note"
+            />
+          </label>
+
+          <div className="grid gap-3 md:grid-cols-3">
+            <label className="space-y-1">
+              <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+                Price (USD)
+              </span>
+              <input
+                required
+                type="number"
+                min={0}
+                step="0.01"
+                value={form.price}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, price: e.target.value }))
+                }
+                className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-zinc-100 outline-none placeholder:text-zinc-500"
+                placeholder="19"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+                Image URL
+              </span>
+              <input
+                value={form.image}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, image: e.target.value }))
+                }
+                className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-zinc-100 outline-none placeholder:text-zinc-500"
+                placeholder="Optional"
+              />
+            </label>
+            <label className="space-y-1">
+              <span className="block text-[11px] font-medium uppercase tracking-wide text-zinc-400">
+                Video URL
+              </span>
+              <input
+                value={form.video}
+                onChange={(e) =>
+                  setForm((prev) => ({ ...prev, video: e.target.value }))
+                }
+                className="w-full rounded-md border border-white/10 bg-black/60 px-2 py-1.5 text-zinc-100 outline-none placeholder:text-zinc-500"
+                placeholder="Optional"
+              />
+            </label>
+          </div>
+
+          <p className="text-[11px] text-zinc-400">
+            At least one of <span className="font-semibold">image</span> or{" "}
+            <span className="font-semibold">video</span> is required.
+          </p>
+
+          {formError && (
+            <p className="text-[11px] text-red-300">{formError}</p>
+          )}
+
+          <div className="flex gap-2 pt-2">
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center justify-center rounded-full bg-sky-500 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-black shadow-md shadow-sky-500/40 transition hover:bg-sky-400 disabled:opacity-60"
+            >
+              {saving ? "Saving…" : mode === "create" ? "Create project" : "Save changes"}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex items-center justify-center rounded-full border border-white/20 px-4 py-1.5 text-xs font-medium text-zinc-200 transition hover:bg-white/10"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
