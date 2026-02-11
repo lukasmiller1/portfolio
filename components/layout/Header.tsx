@@ -1,4 +1,8 @@
+ "use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Baton } from "@/components/ui/Baton";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -8,6 +12,8 @@ const NAV_LINKS = [
 ] as const;
 
 export function Header() {
+  const router = useRouter();
+
   return (
     <header className="sticky top-0 z-20 mx-auto max-w-6xl bg-black/60 px-6 pt-4 backdrop-blur-md md:px-10 lg:px-16">
       <div className="flex flex-col items-center gap-4 rounded-full border border-white/10 bg-black/60 px-6 py-3 shadow-lg shadow-black/40 backdrop-blur-md md:flex-row md:justify-between">
@@ -26,12 +32,9 @@ export function Header() {
               </Link>
             ))}
           </div>
-          <Link
-            href="/app"
-            className="inline-flex items-center justify-center rounded-full bg-sky-500 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-black shadow-md shadow-sky-500/40 transition hover:bg-sky-400"
-          >
+          <Baton onClick={() => router.push("/app")}>
             Go to app
-          </Link>
+          </Baton>
         </nav>
       </div>
     </header>
