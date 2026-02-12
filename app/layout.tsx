@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
+import { SuppressWalletErrors } from "@/components/SuppressWalletErrors";
 import { AppKitProvider } from "@/context/appkit";
 import "./globals.css";
 
@@ -37,6 +38,7 @@ export default function RootLayout({
           />
           <div className="relative z-10 backdrop-blur-[2px]">
             <AppKitProvider>
+              <SuppressWalletErrors />
               <Header />
               {children}
             </AppKitProvider>
