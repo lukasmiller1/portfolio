@@ -1,61 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { Project, ProjectType } from "@/types/project";
 import { DEMO_PROJECTS } from "@/constants/projects";
 
-const API_PROJECTS = "/api/projects";
+export function useProjects(searchQuery: string) {
+  const [projects] = useState<Project[]>(DEMO_PROJECTS);
 
-export function useProjects(searchQuery: string, refreshTrigger?: number) {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchProjects() {
-      setLoading(true);
-      setError(null);
-      try {
-        const params = new URLSearchParams();
-        if (searchQuery.trim()) {
-          params.set("search", searchQuery.trim());
-        }
-        const res = await fetch(`${API_PROJECTS}?${params.toString()}`, {
-          cache: "no-store",
-        });
-        if (!res.ok) {
-          const body = (await res.json().catch(() => ({}))) as { error?: string };
-          if (!cancelled) {
-            setError(
-              body.error || "Unable to load projects right now. You can still browse the demo list below."
-            );
-            setProjects(DEMO_PROJECTS);
-          }
-          return;
-        }
-        const data = (await res.json()) as { projects: Project[] };
-        if (!cancelled) {
-          setProjects(data.projects ?? []);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(
-            "Unable to load projects right now. You can still browse the demo list below."
-          );
-          setProjects(DEMO_PROJECTS);
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    fetchProjects();
-    return () => {
-      cancelled = true;
-    };
-  }, [searchQuery, refreshTrigger]);
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return projects;
+    return projects.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q)
+    );
+  }, [projects, searchQuery]);
 
   const groupedByType = useMemo(() => {
     const groups: Record<ProjectType, Project[]> = {
@@ -65,12 +25,17 @@ export function useProjects(searchQuery: string, refreshTrigger?: number) {
       website: [],
       other: [],
     };
-    for (const project of projects) {
+    for (const project of filtered) {
       const type = (project.type ?? "other") as ProjectType;
       groups[type].push(project);
     }
     return groups;
-  }, [projects]);
+  }, [filtered]);
 
-  return { projects, loading, error, groupedByType };
+  return {
+    projects: filtered,
+    loading: false,
+    error: null,
+    groupedByType,
+  };
 }

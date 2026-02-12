@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { Badge } from "@/components/ui/Badge";
 import type { TeamMember } from "@/types/team";
+import { DEMO_TEAM_MEMBERS } from "@/constants/team";
 
 function parseHighlightedIntro(text: string) {
   const parts: { text: string; highlight: boolean }[] = [];
@@ -33,26 +34,8 @@ function parseHighlightedIntro(text: string) {
 }
 
 export default function TeamPage() {
-  const [members, setMembers] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [members] = useState<TeamMember[]>(DEMO_TEAM_MEMBERS);
   const [selected, setSelected] = useState<TeamMember | null>(null);
-
-  const fetchTeam = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/team", { cache: "no-store" });
-      if (res.ok) {
-        const data = (await res.json()) as { members: TeamMember[] };
-        setMembers(data.members ?? []);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTeam();
-  }, [fetchTeam]);
 
   return (
     <PageContainer className="gap-10 pt-16">
@@ -67,10 +50,7 @@ export default function TeamPage() {
         </p>
       </section>
 
-      {loading ? (
-        <p className="text-sm text-zinc-400">Loading team…</p>
-      ) : (
-        <section className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {members.map((member) => (
             <article
               key={member._id}
@@ -120,13 +100,12 @@ export default function TeamPage() {
               </div>
             </article>
           ))}
-          {!loading && members.length === 0 && (
+          {members.length === 0 && (
             <p className="col-span-full text-center text-sm text-zinc-500">
               No team members yet.
             </p>
           )}
         </section>
-      )}
 
       {selected && (
         <TeamMemberDetailModal

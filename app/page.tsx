@@ -2,15 +2,16 @@
 
 import { useState } from "react";
 import { useProjects } from "@/hooks/useProjects";
+import type { ProjectType } from "@/types/project";
 import { PageContainer } from "@/components/ui/PageContainer";
 import { HeroSection } from "@/components/home/HeroSection";
-import { ProjectSearch } from "@/components/home/ProjectSearch";
 import { CategoryCards } from "@/components/home/CategoryCards";
 import { ProjectSnapshotCard } from "@/components/home/ProjectSnapshotCard";
 import { ProjectsByCategory } from "@/components/home/ProjectsByCategory";
 
 export default function HomePage() {
   const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<"all" | ProjectType>("all");
   const { projects, loading, error, groupedByType } = useProjects(search);
 
   return (
@@ -21,7 +22,6 @@ export default function HomePage() {
       >
         <div className="space-y-6">
           <HeroSection />
-          <ProjectSearch value={search} onChange={setSearch} />
           <CategoryCards />
         </div>
         <ProjectSnapshotCard />
@@ -32,6 +32,10 @@ export default function HomePage() {
         loading={loading}
         error={error}
         totalCount={projects.length}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        searchValue={search}
+        onSearchChange={setSearch}
       />
     </PageContainer>
   );

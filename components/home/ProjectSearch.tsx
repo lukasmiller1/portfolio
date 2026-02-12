@@ -24,10 +24,6 @@ export function ProjectSearch({ value, onChange }: ProjectSearchProps) {
           />
         </div>
       </label>
-      <p className="text-[11px] text-zinc-400">
-        <span className="font-semibold text-sky-200">Get one project with Pro.</span>{" "}
-        Upgrade once and unlock a project of your choice.
-      </p>
     </div>
   );
 }

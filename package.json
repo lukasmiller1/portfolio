@@ -9,12 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@reown/appkit": "^1.8.18",
-    "@reown/appkit-adapter-ethers": "^1.8.18",
-    "@reown/appkit-common": "^1.8.18",
-    "@reown/appkit-universal-connector": "^1.8.18",
-    "ethers": "^6.16.0",
-    "mongoose": "^9.2.0",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
