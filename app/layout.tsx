@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Header } from "@/components/layout/Header";
+import { WorldMapNetwork } from "@/components/background/WorldMapNetwork";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,12 +30,24 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-screen bg-[radial-gradient(circle_at_bottom,_#151b27,_#050608_55%)] text-zinc-50">
+        <div className="relative min-h-screen bg-[radial-gradient(circle_at_bottom,_#151b27,_#050608_55%)] text-zinc-50">
+          {/* Single background layer: stars + map (stacked), behind content */}
           <div
-            className="fixed inset-0 -z-10 bg-[url('/stars-bg.png')] bg-cover bg-center opacity-60"
+            className="fixed inset-0 overflow-hidden"
+            style={{ zIndex: 0 }}
             aria-hidden
-          />
-          <div className="relative z-10 backdrop-blur-[2px]">
+          >
+            <div
+              className="absolute inset-0 bg-[url('/stars-bg.png')] bg-cover bg-center opacity-35"
+              aria-hidden
+            />
+            <WorldMapNetwork />
+          </div>
+          {/* Content above background */}
+          <div
+            className="relative backdrop-blur-[2px]"
+            style={{ zIndex: 1 }}
+          >
             <Header />
             {children}
           </div>
