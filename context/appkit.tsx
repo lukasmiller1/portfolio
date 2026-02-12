@@ -22,16 +22,23 @@ const metadata = {
   icons: ["/favicon.ico"],
 };
 
-createAppKit({
-  adapters: [new EthersAdapter()],
-  metadata,
-  networks: [mainnet, arbitrum],
-  defaultNetwork: mainnet,
-  projectId,
-  features: {
-    analytics: true,
-  },
-});
+try {
+  createAppKit({
+    adapters: [new EthersAdapter()],
+    metadata,
+    networks: [mainnet, arbitrum],
+    defaultNetwork: mainnet,
+    projectId,
+    features: {
+      analytics: true,
+    },
+  });
+} catch (err) {
+  console.error(
+    "AppKit init:",
+    err instanceof Error ? err.message : String(err)
+  );
+}
 
 export function AppKitProvider({ children }: { children: ReactNode }) {
   return <>{children}</>;

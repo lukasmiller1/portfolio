@@ -11,8 +11,28 @@ const NAV_LINKS = [
   { href: "/contact", label: "Contact" },
 ] as const;
 
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "object" && err !== null && "message" in err) return String((err as { message?: unknown }).message);
+  return String(err);
+}
+
 export function Header() {
   const { open } = useAppKit();
+
+  const handleGoToApp = () => {
+    try {
+      if (typeof open !== "function") return;
+      const result = open();
+      if (result && typeof (result as Promise<unknown>).catch === "function") {
+        (result as Promise<unknown>).catch((err: unknown) => {
+          console.error("WalletConnect:", getErrorMessage(err));
+        });
+      }
+    } catch (err) {
+      console.error("WalletConnect:", getErrorMessage(err));
+    }
+  };
 
   return (
     <header className="sticky top-0 z-20 mx-auto max-w-6xl bg-black/60 px-6 pt-4 backdrop-blur-md md:px-10 lg:px-16">
@@ -32,7 +52,7 @@ export function Header() {
               </Link>
             ))}
           </div>
-          <Baton onClick={() => open()}>
+          <Baton onClick={handleGoToApp}>
             Go to app
           </Baton>
         </nav>
