@@ -13,21 +13,25 @@ export function Header() {
   return (
     <header className="sticky top-0 z-20 mx-auto max-w-6xl bg-black/60 px-6 pt-4 backdrop-blur-md md:px-10 lg:px-16">
       <div className="flex flex-col items-center gap-4 rounded-full border border-white/10 bg-black/60 px-6 py-3 shadow-lg shadow-black/40 backdrop-blur-md md:flex-row md:justify-between">
-        <nav
-className="flex flex-1 items-center justify-between gap-4"
-        aria-label="Main"
+        <Link
+          href="/"
+          className="text-lg font-semibold text-white transition hover:text-sky-300"
         >
-          <div className="flex items-center gap-6 text-base font-medium text-zinc-200">
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className="transition hover:text-sky-300"
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
+          Prime Nexus
+        </Link>
+        <nav
+          className="flex items-center gap-6"
+          aria-label="Main"
+        >
+          {NAV_LINKS.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className="text-base font-medium text-zinc-200 transition hover:text-sky-300"
+            >
+              {label}
+            </Link>
+          ))}
         </nav>
       </div>
     </header>

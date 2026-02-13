@@ -45,8 +45,9 @@ export default function TeamPage() {
           Get to know the experts driving this
         </h1>
         <p className="max-w-2xl text-base leading-relaxed text-zinc-200">
-          Introduce the people working on these games, scripts, bots, and
-          websites. 
+          This elite German quintet embodies precision engineering, relentless
+          quality, and forward thinking innovation perfectly aligned under the
+          Prime Nexus banner.
         </p>
       </section>
 
@@ -70,7 +71,7 @@ export default function TeamPage() {
                 )}
               </div>
               <div className="mt-4 flex w-2/3 max-w-[16rem] flex-col items-center gap-1 text-center">
-                <h2 className="text-xl font-semibold text-white">
+                <h2 className="text-xl font-semibold text-sky-300">
                   {member.name}
                 </h2>
                 <p className="text-base text-white">
@@ -79,7 +80,7 @@ export default function TeamPage() {
                 <button
                   type="button"
                   onClick={() => setSelected(member)}
-                  className="mt-3 flex items-center gap-1.5 text-base font-medium text-white transition hover:text-white/80"
+                  className="mt-3 flex items-center gap-1.5 text-base font-medium text-sky-300 transition hover:text-sky-200"
                 >
                   More Info
                   <svg
