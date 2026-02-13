@@ -1,24 +1,24 @@
 const CATEGORIES = [
-  {
-    title: "Games",
-    description:
-      "Ready-to-play titles with clean source code for learning or customization.",
-  },
-  {
-    title: "Scripts & Bots",
-    description:
-      "Automate tasks, manage communities, and integrate services with production bots.",
-  },
-  {
-    title: "AI",
-    description:
-      "Intelligent automation and ML-powered tools ready to integrate into your workflows.",
-  },
-  {
-    title: "Websites",
-    description:
-      "Fast, responsive sites and components ready to plug into your stack.",
-  },
+  // {
+  //   title: "Games",
+  //   description:
+  //     "Ready-to-play titles with clean source code for learning or customization.",
+  // },
+  // {
+  //   title: "Scripts & Bots",
+  //   description:
+  //     "Automate tasks, manage communities, and integrate services with production bots.",
+  // },
+  // {
+  //   title: "AI",
+  //   description:
+  //     "Intelligent automation and ML-powered tools ready to integrate into your workflows.",
+  // },
+  // {
+  //   title: "Websites",
+  //   description:
+  //     "Fast, responsive sites and components ready to plug into your stack.",
+  // },
 ] as const;
 
 export function CategoryCards() {
