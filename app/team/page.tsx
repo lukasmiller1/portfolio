@@ -44,9 +44,9 @@ export default function TeamPage() {
         <h1 className="text-balance text-3xl font-semibold leading-tight tracking-tight md:text-4xl">
           Get to know the experts driving this
         </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-zinc-200">
+        <p className="max-w-2xl text-base leading-relaxed text-zinc-200">
           Introduce the people working on these games, scripts, bots, and
-          websites. Share what each person brings to the projects.
+          websites. 
         </p>
       </section>
 
@@ -70,16 +70,16 @@ export default function TeamPage() {
                 )}
               </div>
               <div className="mt-4 flex w-2/3 max-w-[16rem] flex-col items-center gap-1 text-center">
-                <h2 className="text-lg font-semibold text-white">
+                <h2 className="text-xl font-semibold text-white">
                   {member.name}
                 </h2>
-                <p className="text-sm text-white">
+                <p className="text-base text-white">
                   {member.role}
                 </p>
                 <button
                   type="button"
                   onClick={() => setSelected(member)}
-                  className="mt-3 flex items-center gap-1.5 text-sm font-medium text-white transition hover:text-white/80"
+                  className="mt-3 flex items-center gap-1.5 text-base font-medium text-white transition hover:text-white/80"
                 >
                   More Info
                   <svg
@@ -101,7 +101,7 @@ export default function TeamPage() {
             </article>
           ))}
           {members.length === 0 && (
-            <p className="col-span-full text-center text-sm text-zinc-500">
+            <p className="col-span-full text-center text-base text-zinc-500">
               No team members yet.
             </p>
           )}
@@ -146,7 +146,7 @@ function TeamMemberDetailModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-10 w-10 items-center justify-center rounded-lg border border-amber-500/40 text-amber-400 transition hover:bg-amber-500/10"
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-sky-500/40 text-sky-400 transition hover:bg-sky-500/10"
             aria-label="Close"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +157,7 @@ function TeamMemberDetailModal({
 
         <div className="flex flex-col gap-6 p-6">
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full bg-zinc-800 ring-2 ring-amber-500/30">
+            <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full bg-zinc-800 ring-2 ring-sky-500/30">
               {member.photo ? (
                 <img
                   src={member.photo}
@@ -176,15 +176,15 @@ function TeamMemberDetailModal({
             >
               {member.name}
             </h2>
-            <p className="text-sm font-medium text-white">{member.role}</p>
+            <p className="text-base font-medium text-white">{member.role}</p>
           </div>
 
-          <div className="space-y-4 text-sm leading-relaxed text-zinc-200">
+          <div className="space-y-4 text-base leading-relaxed text-zinc-200">
             {paragraphs.map((para, i) => (
               <p key={i} className="flex flex-wrap gap-x-1">
                 {parseHighlightedIntro(para).map((p, j) =>
                   p.highlight ? (
-                    <span key={j} className="font-semibold text-amber-400">
+                    <span key={j} className="font-semibold text-sky-400">
                       {p.text}
                     </span>
                   ) : (

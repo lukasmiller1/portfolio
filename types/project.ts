@@ -1,4 +1,4 @@
-export type ProjectType = "game" | "script" | "bot" | "website" | "other";
+export type ProjectType = "game" | "script" | "bot" | "ai" | "website" | "other";
 
 export interface Project {
   _id: string;

@@ -22,6 +22,7 @@ export function useProjects(searchQuery: string) {
       game: [],
       script: [],
       bot: [],
+      ai: [],
       website: [],
       other: [],
     };

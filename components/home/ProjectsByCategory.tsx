@@ -37,18 +37,18 @@ export function ProjectsByCategory({
       <div className="space-y-3">
         <header className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-zinc-50">
+            <h2 className="text-xl font-semibold text-zinc-50">
               Projects by category
             </h2>
-            <p className="text-sm text-zinc-300">
+            <p className="text-base text-zinc-300">
               Filtered automatically by your search — matching project names and
               descriptions.
             </p>
           </div>
           {loading ? (
-            <p className="text-xs text-zinc-400">Loading projects...</p>
+            <p className="text-sm text-zinc-400">Loading projects...</p>
           ) : (
-            <p className="text-xs text-zinc-400">
+            <p className="text-sm text-zinc-400">
               Showing{" "}
               <span className="font-semibold text-sky-200">{totalCount}</span>{" "}
               project{totalCount === 1 ? "" : "s"}.
@@ -67,7 +67,7 @@ export function ProjectsByCategory({
         <button
           type="button"
           onClick={() => onCategoryChange?.("all")}
-          className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+          className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
             selectedCategory === "all"
               ? "bg-sky-500/30 text-sky-100 ring-1 ring-sky-400/50"
               : "text-zinc-300 hover:bg-white/10 hover:text-zinc-50"
@@ -83,7 +83,7 @@ export function ProjectsByCategory({
               key={type}
               type="button"
               onClick={() => onCategoryChange?.(type)}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+              className={`rounded-full px-3 py-1.5 text-sm font-medium transition ${
                 selectedCategory === type
                   ? "bg-sky-500/30 text-sky-100 ring-1 ring-sky-400/50"
                   : "text-zinc-300 hover:bg-white/10 hover:text-zinc-50"
@@ -97,7 +97,7 @@ export function ProjectsByCategory({
       </div>
 
       {error && (
-        <p className="rounded-2xl border border-sky-500/40 bg-sky-500/10 px-4 py-3 text-xs text-sky-100">
+        <p className="rounded-2xl border border-sky-500/40 bg-sky-500/10 px-4 py-3 text-sm text-sky-100">
           {error}
         </p>
       )}
@@ -110,10 +110,10 @@ export function ProjectsByCategory({
           return (
             <section key={type} className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-300">
+                <h3 className="text-base font-semibold uppercase tracking-wide text-zinc-300">
                   {label}
                 </h3>
-                <span className="text-[11px] text-zinc-500">
+                <span className="text-xs text-zinc-500">
                   {items.length} item{items.length === 1 ? "" : "s"}
                 </span>
               </div>

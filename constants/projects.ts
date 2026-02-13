@@ -4,6 +4,7 @@ export const PROJECT_TYPE_LABELS: Record<ProjectType, string> = {
   game: "Games",
   script: "Scripts",
   bot: "Bots",
+  ai: "AI",
   website: "Websites",
   other: "Other",
 };
@@ -12,6 +13,7 @@ export const PROJECT_TYPES_ORDER: ProjectType[] = [
   "game",
   "script",
   "bot",
+  "ai",
   "website",
   "other",
 ];
