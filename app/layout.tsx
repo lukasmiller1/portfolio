@@ -30,7 +30,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="relative min-h-screen bg-[radial-gradient(circle_at_bottom,_#151b27,_#050608_55%)] text-zinc-50">
+        <div className="relative min-h-screen text-zinc-50">
           {/* Single background layer: stars + map (stacked), behind content */}
           <div
             className="fixed inset-0 overflow-hidden"
@@ -45,7 +45,7 @@ export default function RootLayout({
           </div>
           {/* Content above background */}
           <div
-            className="relative backdrop-blur-[2px] h-[100vh]"
+            className="relative h-[100vh]"
             style={{ zIndex: 1 }}
           >
             <Header />
