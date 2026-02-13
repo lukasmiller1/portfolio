@@ -20,6 +20,7 @@ const ENDPOINTS: [number, number][] = [
   [620, 242], // SE Asia
   [560, 182], // Australia
   [632, 162], // South Africa
+  [632, 132],
 ];
 
 type ActiveLine = { index: number; seed: number };
@@ -71,12 +72,12 @@ export function WorldMapNetwork() {
         className="absolute inset-0 h-full w-full min-w-full"
         viewBox="0 0 1000 500"
         preserveAspectRatio="xMidYMid slice"
-        style={{ opacity: 0.85 }}
+        style={{ opacity: 1 }}
       >
         <defs>
           <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="rgb(56, 189, 248)" stopOpacity="1" />
-            <stop offset="100%" stopColor="rgb(56, 189, 248)" stopOpacity="0.35" />
+            <stop offset="0%" stopColor="rgb(0, 0, 255)" stopOpacity="1" />
+            <stop offset="100%" stopColor="rgb(0, 0, 255)" stopOpacity="1" />
           </linearGradient>
           <filter id="glow">
             <feGaussianBlur stdDeviation="0.3" result="blur" />

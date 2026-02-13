@@ -70,16 +70,16 @@ export default function TeamPage() {
                 )}
               </div>
               <div className="mt-4 flex w-2/3 max-w-[16rem] flex-col items-center gap-1 text-center">
-                <h2 className="text-lg font-semibold text-amber-400">
+                <h2 className="text-lg font-semibold text-white">
                   {member.name}
                 </h2>
-                <p className="text-sm text-zinc-400">
+                <p className="text-sm text-white">
                   {member.role}
                 </p>
                 <button
                   type="button"
                   onClick={() => setSelected(member)}
-                  className="mt-3 flex items-center gap-1.5 text-sm font-medium text-amber-400 transition hover:text-amber-300"
+                  className="mt-3 flex items-center gap-1.5 text-sm font-medium text-white transition hover:text-white/80"
                 >
                   More Info
                   <svg
@@ -172,11 +172,11 @@ function TeamMemberDetailModal({
             </div>
             <h2
               id="team-detail-name"
-              className="text-2xl font-bold text-amber-400"
+              className="text-2xl font-bold text-white"
             >
               {member.name}
             </h2>
-            <p className="text-sm font-medium text-zinc-200">{member.role}</p>
+            <p className="text-sm font-medium text-white">{member.role}</p>
           </div>
 
           <div className="space-y-4 text-sm leading-relaxed text-zinc-200">

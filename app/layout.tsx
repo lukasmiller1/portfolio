@@ -45,7 +45,7 @@ export default function RootLayout({
           </div>
           {/* Content above background */}
           <div
-            className="relative backdrop-blur-[2px]"
+            className="relative backdrop-blur-[2px] h-[100vh]"
             style={{ zIndex: 1 }}
           >
             <Header />
